@@ -9,7 +9,7 @@ __Simple & Secure Password Sharing with Auto-Expiration of Shared Items__
 [![](https://badgen.net/uptime-robot/month/m789048867-17b5770ccd78208645662f1f)](https://stats.uptimerobot.com/6xJjNtPr93)
 [![](https://badgen.net/docker/pulls/pglombardo/pwpush-ephemeral)](https://hub.docker.com/repositories)
 
-[![Github CI](https://github.com/pglombardo/PasswordPusher/actions/workflows/ruby.yml/badge.svg)](https://github.com/pglombardo/PasswordPusher/actions/workflows/ruby.yml)
+[![Github CI](https://github.com/pglombardo/PasswordPusher/actions/workflows/ruby-tests.yml/badge.svg)](https://github.com/pglombardo/PasswordPusher/actions/workflows/ruby-tests.yml)
 [![](https://badgen.net/circleci/github/pglombardo/PasswordPusher)](https://circleci.com/gh/pglombardo/PasswordPusher/tree/master)
 [![Dependencies Status](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg)](https://github.com/pglombardo/pwpush-cli/pulls?utf8=%E2%9C%93&q=is%3Apr%20author%3Aapp%2Fdependabot)
 [![Semantic Versions](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--versions-e10079.svg)](https://github.com/pglombardo/pwpush-cli/releases)
@@ -30,7 +30,7 @@ Hosted at [pwpush.com](https://pwpush.com) but you can also easily run your own 
 * __Host your own:__ Database backed or ephemeral, easily run your own instance isolated from the world.
 * __JSON API:__ Raw JSON API available for 3rd party tools or command line via `curl` or `wget`.
 * __Command line interface:__ Automate your password distribution with CLI tools or custom scripts.
-* __Internationalized:__ 14 language translations are bundled in.  Easily selectable via UI or URL
+* __Internationalized:__ 17 language translations are bundled in.  Easily selectable via UI or URL
 * __Unbranded delivery page:__ No logos, superfluous text or unrelated links to confuse end users.
 * __Customizable:__ Change text and default options via environment variables.
 * __Light & dark themes:__  Via CSS @media integration, the site theme follows your local preferences
@@ -211,40 +211,23 @@ Thanks to our great translators!
 
 If you would like to volunteer and assist in translating, see [this page](https://pwpush.com/en/pages/translate).
 
-* Catalan
-  * [Oyale](https://github.com/oyale)
-
-* Danish
-  * Finn Skaaning
-
-* Finnish
-  * [Mihail Tchetchelnitski](https://github.com/mtchetch)
-
-* French
-  * [Thibaut](https://github.com/tibo59)
-
-* German
-  * Thomas Wölk: [Github](https://github.com/confluencepoint/) | [Twitter](https://twitter.com/confluencepoint)
-  * Martin Otto
-
-* Norwegian
-  * Robin Jørgensen
-
-* Polish
-  * [Łukasz](https://github.com/drpt)
-
-* Portuguese
-  * [Jair Henrique](https://github.com/jairhenrique/)
-  * [Fabrício Rodrigues](https://www.linkedin.com/in/ifabriciorodrigues/)
-  * [Ivan Freitas](https://github.com/IvanMFreitas)
-  * Sara Faria
-
-* Spanish
-  * [Oyale](https://github.com/oyale)
-
-* Swedish
-  * johan323
-  * Fredrik Arvas
+| Name   | Language  | |
+|---|---|---|
+| [Oyale](https://github.com/oyale) | [Catalan](https://pwpush.com/ca) | |
+| Finn Skaaning  |  [Danish](https://pwpush.com/da/p/ny) | |
+| [Mihail Tchetchelnitski](https://github.com/mtchetch)  | [Finnish](https://pwpush.com/fi/p/uusi)  | |
+| [Thibaut](https://github.com/tibo59) | [French](https://pwpush.com/fr/p/Nouveau) | |
+| Thomas Wölk | [German](https://pwpush.com/de/p/neu) | [Github](https://github.com/confluencepoint/), [Twitter](https://twitter.com/confluencepoint) |
+| Martin Otto |[German](https://pwpush.com/de/p/neu) | |
+| Robin Jørgensen |[Norwegian](https://pwpush.com/no/p/ny) | |
+| [Łukasz](https://github.com/drpt)|[Polish](https://pwpush.com/pl/p/nowy) | |
+| [Jair Henrique](https://github.com/jairhenrique/) | [Portuguese](https://pwpush.com/pt-br/p/novo) | |
+| [Fabrício Rodrigues](https://www.linkedin.com/in/ifabriciorodrigues/)| [Portuguese](https://pwpush.com/pt-br/p/novo) | |
+| [Ivan Freitas](https://github.com/IvanMFreitas)| [Portuguese](https://pwpush.com/pt-br/p/novo) | |
+| Sara Faria| [Portuguese](https://pwpush.com/pt-br/p/novo) | |
+| [Oyale](https://github.com/oyale) |[Spanish](https://pwpush.com/pt-br/p/novo) | |
+| johan323 |[Swedish](https://pwpush.com/sv/p/ny) | |
+| Fredrik Arvas|[Swedish](https://pwpush.com/sv/p/ny) | |
 
 Also thanks to [translation.io](https://translation.io) for their great service in managing translations.  It's also generously free for opensource projects.
 
