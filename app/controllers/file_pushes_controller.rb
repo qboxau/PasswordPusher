@@ -56,6 +56,9 @@ class FilePushesController < ApplicationController
     log_view(@push)
     expires_now
 
+    # Optionally blur the text payload
+    @blur_css_class = Settings.files.enable_blur ? 'spoiler' : ''
+
     respond_to do |format|
       format.html { render layout: 'bare' }
       format.json { render json: @push.to_json(payload: true) }
@@ -93,21 +96,19 @@ class FilePushesController < ApplicationController
     param :retrieval_step, [true, false], desc: "Helps to avoid chat systems and URL scanners from eating up views."
   end
   formats ['json']
-  example 'curl -X POST -H "X-User-Email: <email>" -H "X-User-Token: MyAPIToken" --data "file_push[payload]=myfile_push&file_push[expire_after_days]=2&file_push[expire_after_views]=10" https://pwpush.com/f.json'
+  example 'curl -X POST -H "X-User-Email: <email>" -H "X-User-Token: MyAPIToken" -F "file_push[filee][]=@/path/to/file/file1.extension" -F "file_push[files][]=@/path/to/file/file2.extension" https://pwpush.com/f.json'
   def create
     # Require authentication if allow_anonymous is false
     # See config/settings.yml
     authenticate_user! if Settings.enable_logins && !Settings.allow_anonymous
-
-    @push = FilePush.new(file_push_params)
 
     # params[:file_push] has to exist
     # params[:file_push] has to be a ActionController::Parameters (Hash)
     file_push_param = params.fetch(:file_push, {})
     if !file_push_param.respond_to?(:fetch)
       respond_to do |format|
-        format.html { render :new, status: :bad_request }
-        format.json { render json: { "error": "No password, text or files provided." }, status: :bad_request }
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { "error": "No password, text or files provided." }, status: :unprocessable_entity }
       end
       return
     end
@@ -117,36 +118,36 @@ class FilePushesController < ApplicationController
     files_param   = file_push_param.fetch(:files, [])
     unless (payload_param.is_a?(String) && payload_param.length.between?(1, 1.megabyte)) || !files_param.empty? || files_param.size > 10
       respond_to do |format|
-        format.html { render :new, status: :bad_request }
-        format.json { render json: { "error": "No password, text or files provided." }, status: :bad_request }
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { "error": "No password, text or files provided." }, status: :unprocessable_entity }
       end
       return
     end
 
     @push_count = FilePush.where(user_id: current_user.id, expired: false).count
     if @push_count >= 10
-      msg = _('Only 10 active pushes allowed while in Beta and until things are stable. If it\'s an option, you can manually expire existing pushes before creating new ones.')
+      msg = _('Only 10 active file pushes allowed while in Beta and until things are stable. If it\'s an option, you can manually expire existing pushes before creating new ones.')
       respond_to do |format|
         format.html {
           flash.now[:warning] = msg
-          render :new, status: :bad_request
+          render :new, status: :unprocessable_entity
         }
-        format.json { render json: { "error": msg }, status: :bad_request }
+        format.json { render json: { "error": msg }, status: :unprocessable_entity }
       end
       return
     end
 
     @push = FilePush.new
 
-    @push.expire_after_days = params[:file_push].fetch(:expire_after_days, Settings.expire_after_days_default)
-    @push.expire_after_views = params[:file_push].fetch(:expire_after_views, Settings.expire_after_views_default)
+    @push.expire_after_days = params[:file_push].fetch(:expire_after_days, Settings.files.expire_after_days_default)
+    @push.expire_after_views = params[:file_push].fetch(:expire_after_views, Settings.files.expire_after_views_default)
     @push.user_id = current_user.id if user_signed_in?
     @push.url_token = SecureRandom.urlsafe_base64(rand(8..14)).downcase
 
     create_detect_deletable_by_viewer(@push, params)
     create_detect_retrieval_step(@push, params)
 
-    @push.payload = params[:file_push][:payload]
+    @push.payload = params[:file_push][:payload] || ''
     @push.note = params[:file_push][:note] unless params[:file_push].fetch(:note, '').blank?
     @push.files.attach(params[:file_push][:files])
 
@@ -157,7 +158,7 @@ class FilePushesController < ApplicationController
         format.html { redirect_to preview_file_push_path(@push) }
         format.json { render json: @push, status: :created }
       else
-        format.html { render action: 'new' }
+        format.html { render action: 'new', status: :unprocessable_entity }
         format.json { render json: @push.errors, status: :unprocessable_entity }
       end
     end
@@ -170,8 +171,7 @@ class FilePushesController < ApplicationController
   description ""
   def preview
     @push = FilePush.find_by_url_token!(params[:id])
-
-    @secret_url = helpers.file_push_secret_url(@push)
+    @secret_url = helpers.secret_url(@push)
 
     respond_to do |format|
       format.html { render action: 'preview' }
@@ -200,6 +200,8 @@ class FilePushesController < ApplicationController
       return
     end
 
+    @secret_url = helpers.raw_secret_url(@push)
+
     respond_to do |format|
       format.html { render action: 'preliminary', layout: 'naked' }
     end
@@ -222,6 +224,8 @@ class FilePushesController < ApplicationController
       end
       return
     end
+
+    @secret_url = helpers.secret_url(@push)
 
     respond_to do |format|
       format.html { }
@@ -254,6 +258,14 @@ class FilePushesController < ApplicationController
       return
     end
 
+    if @push.expired
+      respond_to do |format|
+        format.html { redirect_to :root, notice: _('That push is already expired.') }
+        format.json { render json: { 'error': _('That push is already expired.') }, status: :unprocessable_entity }
+      end
+      return
+    end
+
     log_view(@push, manual_expiration: true)
 
     @push.expired = true
@@ -275,7 +287,7 @@ class FilePushesController < ApplicationController
         }
         format.json { render json: @push, status: :ok }
       else
-        format.html { render action: 'new' }
+        format.html { render action: 'new', status: :unprocessable_entity }
         format.json { render json: @push.errors, status: :unprocessable_entity }
       end
     end
@@ -365,7 +377,7 @@ class FilePushesController < ApplicationController
   # Since determining this value between and HTML forms and JSON API requests can be a bit
   # tricky, we break this out to it's own function.
   def create_detect_retrieval_step(file_push, params)
-    if Settings.enable_retrieval_step == true
+    if Settings.files.enable_retrieval_step == true
       if params[:file_push].key?(:retrieval_step)
         # User form data or json API request: :deletable_by_viewer can
         # be 'on', 'true', 'checked' or 'yes' to indicate a positive
@@ -379,7 +391,7 @@ class FilePushesController < ApplicationController
         else
           # The JSON API is implicit so if it's not specified, use the app
           # configured default
-          file_push.retrieval_step = Settings.retrieval_step_default
+          file_push.retrieval_step = Settings.files.retrieval_step_default
         end
       end
     else
@@ -391,7 +403,7 @@ class FilePushesController < ApplicationController
   # Since determining this value between and HTML forms and JSON API requests can be a bit
   # tricky, we break this out to it's own function.
   def create_detect_deletable_by_viewer(file_push, params)
-    if Settings.enable_deletable_pushes == true
+    if Settings.files.enable_deletable_pushes == true
       if params[:file_push].key?(:deletable_by_viewer)
         # User form data or json API request: :deletable_by_viewer can
         # be 'on', 'true', 'checked' or 'yes' to indicate a positive
@@ -405,7 +417,7 @@ class FilePushesController < ApplicationController
         else
           # The JSON API is implicit so if it's not specified, use the app
           # configured default
-          file_push.deletable_by_viewer = Settings.deletable_pushes_default
+          file_push.deletable_by_viewer = Settings.files.deletable_pushes_default
         end
       end
     else

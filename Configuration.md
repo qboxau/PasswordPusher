@@ -85,20 +85,36 @@ Notes:
 | PWP__DEFAULT_LOCALE | Sets the default language for the application.  See the [documentation](https://github.com/pglombardo/PasswordPusher#internationalization). | `en` |
 | PWP__RELATIVE_ROOT | Runs the application in a subfolder.  e.g. With a value of `pwp` the front page will then be at `https://url/pwp` | `Not set` |
 
-## Push Form Defaults
+## Password Push Expiration Settings
 
 | Environment Variable | Description | Default Value |
 | --------- | ------------------ | --- |
-| PWP__EXPIRE_AFTER_DAYS_DEFAULT | Controls the "Expire After Days" default value in Password#new | `7` |
-| PWP__EXPIRE_AFTER_DAYS_MIN | Controls the "Expire After Days" minimum value in Password#new | `1` |
-| PWP__EXPIRE_AFTER_DAYS_MAX | Controls the "Expire After Days" maximum value in Password#new | `90` |
-| PWP__EXPIRE_AFTER_VIEWS_DEFAULT | Controls the "Expire After Views" default value in Password#new | `5` |
-| PWP__EXPIRE_AFTER_VIEWS_MIN | Controls the "Expire After Views" minimum value in Password#new | `1` |
-| PWP__EXPIRE_AFTER_VIEWS_MAX | Controls the "Expire After Views" maximum value in Password#new | `100` |
-| PWP__ENABLE_DELETABLE_PUSHES | Can passwords be deleted by viewers? When true, passwords will have a link to optionally delete the password being viewed | `false` |
-| PWP__DELETABLE_PASSWORDS_DEFAULT | When the above is `true`, this sets the default value for the option. | `true` |
-| PWP__ENABLE_RETRIEVAL_STEP | When `true`, adds an option to have a preliminary step to retrieve passwords.  | `true` |
-| PWP__RETRIEVAL_STEP_DEFAULT | Sets the default value for the retrieval step for newly created passwords. | `false` |
+| PWP__PW__EXPIRE_AFTER_DAYS_DEFAULT | Controls the "Expire After Days" default value in Password#new | `7` |
+| PWP__PW__EXPIRE_AFTER_DAYS_MIN | Controls the "Expire After Days" minimum value in Password#new | `1` |
+| PWP__PW__EXPIRE_AFTER_DAYS_MAX | Controls the "Expire After Days" maximum value in Password#new | `90` |
+| PWP__PW__EXPIRE_AFTER_VIEWS_DEFAULT | Controls the "Expire After Views" default value in Password#new | `5` |
+| PWP__PW__EXPIRE_AFTER_VIEWS_MIN | Controls the "Expire After Views" minimum value in Password#new | `1` |
+| PWP__PW__EXPIRE_AFTER_VIEWS_MAX | Controls the "Expire After Views" maximum value in Password#new | `100` |
+| PWP__PW__ENABLE_DELETABLE_PUSHES | Can passwords be deleted by viewers? When true, passwords will have a link to optionally delete the password being viewed | `false` |
+| PWP__PW__DELETABLE_PUSHES_DEFAULT | When the above is `true`, this sets the default value for the option. | `true` |
+| PWP__PW__ENABLE_RETRIEVAL_STEP | When `true`, adds an option to have a preliminary step to retrieve passwords.  | `true` |
+| PWP__PW__RETRIEVAL_STEP_DEFAULT | Sets the default value for the retrieval step for newly created passwords. | `false` |
+| PWP__PW__ENABLE_BLUR | Enables or disables the 'blur' effect when showing a push payload to the user. | `true` |
+
+
+## Password Generator Settings
+
+| Environment Variable | Description | Default Value |
+| --------- | ------------------ | --- |
+| PWP__GEN__HAS_NUMBERS | Controls whether generated passwords have numbers | `true` |
+| PWP__GEN__TITLE_CASED | Controls whether generated passwords will be title cased | `true` |
+| PWP__GEN__USE_SEPARATORS | Controls whether generated passwords will use separators between syllables | `true` |
+| PWP__GEN__CONSONANTS | The list of consonants to generate from | `bcdfghklmnprstvz` |
+| PWP__GEN__VOWELS | The list of vowels to generate from | `aeiouy` |
+| PWP__GEN__SEPARATORS | If `use_separators` is enabled above, the list of separators to use (randomly) | `-_=` |
+| PWP__GEN__MAX_SYLLABLE_LENGTH | The maximum length of each syllable that a generated password can have | `3` |
+| PWP__GEN__MIN_SYLLABLE_LENGTH | The minimum length of each syllable that a generated password can have | `1` |
+| PWP__GEN__SYLLABLES_COUNT | The exact number of syllables that a generated password will have | `3` |
 
 # Enabling Logins
 
@@ -161,6 +177,22 @@ This feature can store uploads on local disk (not valid for Docker containers), 
 | --------- | ------------------ | --- |
 | PWP__ENABLE_FILE_PUSHES | On/Off switch for File Pushes. | `false` |
 | PWP__FILES__STORAGE | Chooses the storage area for uploaded files. | `local`, `s3`, `gcs` or `as` |
+| PWP__FILES__ENABLE_BLUR | Enables or disables the 'blur' effect when showing a text payload to the user. | `true` |
+
+## File Push Expiration Settings
+
+| Environment Variable | Description | Default Value |
+| --------- | ------------------ | --- |
+| PWP__FILES__EXPIRE_AFTER_DAYS_DEFAULT | Controls the "Expire After Days" default value in Password#new | `7` |
+| PWP__FILES__EXPIRE_AFTER_DAYS_MIN | Controls the "Expire After Days" minimum value in Password#new | `1` |
+| PWP__FILES__EXPIRE_AFTER_DAYS_MAX | Controls the "Expire After Days" maximum value in Password#new | `90` |
+| PWP__FILES__EXPIRE_AFTER_VIEWS_DEFAULT | Controls the "Expire After Views" default value in Password#new | `5` |
+| PWP__FILES__EXPIRE_AFTER_VIEWS_MIN | Controls the "Expire After Views" minimum value in Password#new | `1` |
+| PWP__FILES__EXPIRE_AFTER_VIEWS_MAX | Controls the "Expire After Views" maximum value in Password#new | `100` |
+| PWP__FILES__ENABLE_DELETABLE_PUSHES | Can passwords be deleted by viewers? When true, passwords will have a link to optionally delete the password being viewed | `false` |
+| PWP__FILES__DELETABLE_PUSHES_DEFAULT | When the above is `true`, this sets the default value for the option. | `true` |
+| PWP__FILES__ENABLE_RETRIEVAL_STEP | When `true`, adds an option to have a preliminary step to retrieve passwords.  | `true` |
+| PWP__FILES__RETRIEVAL_STEP_DEFAULT | Sets the default value for the retrieval step for newly created passwords. | `false` |
 
 ## Local Storage
 
@@ -204,9 +236,26 @@ Similar to file pushes, URL pushes also require logins to be enabled.
 | --------- | ------------------ | --- |
 | PWP__ENABLE_URL_PUSHES | On/Off switch for URL Pushes. | `false` |
 
+## URL Push Expiration Settings
+
+| Environment Variable | Description | Default Value |
+| --------- | ------------------ | --- |
+| PWP__URL__EXPIRE_AFTER_DAYS_DEFAULT | Controls the "Expire After Days" default value in Password#new | `7` |
+| PWP__URL__EXPIRE_AFTER_DAYS_MIN | Controls the "Expire After Days" minimum value in Password#new | `1` |
+| PWP__URL__EXPIRE_AFTER_DAYS_MAX | Controls the "Expire After Days" maximum value in Password#new | `90` |
+| PWP__URL__EXPIRE_AFTER_VIEWS_DEFAULT | Controls the "Expire After Views" default value in Password#new | `5` |
+| PWP__URL__EXPIRE_AFTER_VIEWS_MIN | Controls the "Expire After Views" minimum value in Password#new | `1` |
+| PWP__URL__EXPIRE_AFTER_VIEWS_MAX | Controls the "Expire After Views" maximum value in Password#new | `100` |
+| PWP__URL__ENABLE_DELETABLE_PUSHES | Can passwords be deleted by viewers? When true, passwords will have a link to optionally delete the password being viewed | `false` |
+| PWP__URL__DELETABLE_PUSHES_DEFAULT | When the above is `true`, this sets the default value for the option. | `true` |
+| PWP__URL__ENABLE_RETRIEVAL_STEP | When `true`, adds an option to have a preliminary step to retrieve passwords.  | `true` |
+| PWP__URL__RETRIEVAL_STEP_DEFAULT | Sets the default value for the retrieval step for newly created passwords. | `false` |
+
 # Rebranding
 
 Password Pusher has the ability to be [re-branded](https://twitter.com/pwpush/status/1557658305325109253) with your own site title, tagline and logo.
+
+![](https://pwpush.fra1.cdn.digitaloceanspaces.com/branding%2Fpwpush-brand-example.png)
 
 This can be done with the following environment variables:
 
@@ -215,14 +264,131 @@ This can be done with the following environment variables:
 | PWP__BRAND__TITLE | Title for the site. | `Password Pusher` |
 | PWP__BRAND__TAGLINE | Tagline for the site.  | `Go Ahead.  Email Another Password.` |
 | PWP__BRAND__SHOW_FOOTER_MENU | On/Off switch for the footer menu. | `true` |
-| PWP__BRAND__LIGHT_LOGO | Site logo image for the light theme. | `media/img/logo-transparent-sm-bare.png` |
-| PWP__BRAND__DARK_LOGO | Site logo image for the dark theme. | `media/img/logo-transparent-sm-bare.png` |
+| PWP__BRAND__LIGHT_LOGO | Site logo image for the light theme. | `logo-transparent-sm-bare.png` |
+| PWP__BRAND__DARK_LOGO | Site logo image for the dark theme. | `logo-transparent-sm-bare.png` |
+
+The values for the `*_LOGO` images can either be:
+
+1. Fully qualified HTTP(s) URLS such as `https://pwpush.fra1.cdn.digitaloceanspaces.com/dev%2Facme-logo.jpg` (easiest)
+2. Relative path that is mounted inside the container
+
+As an example for #2 above, say you place your logo images locally into `/var/lib/pwpush/logos/`.  You would then mount that directory into the container:
+
+`docker run -d -p "5100:5100" -v /var/lib/pwpush/logos:/opt/PasswordPusher/public/logos pglombardo/pwpush-postgres:release`
+
+or alternatively for a `docker-compose.yml` file:
+
+```yaml
+volumes:
+  # Example of a persistent volume for the storage directory (file uploads)
+  - /var/lib/pwpush/logos:/opt/PasswordPusher/public/logos:r
+```
+
+See [here](https://github.com/pglombardo/PasswordPusher/blob/master/containers/docker/pwpush-postgres/docker-compose.yml) for a larger Docker Compose explanation.
+
+With this setup, you can then set your `LOGO` environment variables (or `settings.yml` options) to:
+
+```
+PWP__BRAND__LIGHT_LOGO=/logos/mylogo.png
+```
 
 ## See Also
 
 * the `brand` section of [settings.yml](https://github.com/pglombardo/PasswordPusher/blob/master/config/settings.yml) for more details, examples and description.
 * [this issue comment](https://github.com/pglombardo/PasswordPusher/issues/432#issuecomment-1282158006) on how to mount images into the contianer and set your environment variables accordingly
 
+# Themes
+
+![](https://pwpush.fra1.cdn.digitaloceanspaces.com/themes%2Fquartz-theme-pwpush.com.png)
+
+Password Pusher supports **26 themes out of the box**.  These themes are taken directly from the great [Bootswatch](https://bootswatch.com) project and are unmodified.
+
+As such, themes mostly work although there may be a rare edge cases where fonts may not be clear or something doesn't display correctly.  If this is the case you can add custom CSS styles to fix any such issues.  See the next section on how to add custom styling.
+
+---> Checkout the [Themes Gallery](Themes.md)!
+
+The Bootswatch themes are licensed under the MIT license.
+
+## Configuring a Theme
+
+To specify a theme for your Password Pusher instance, you must set __two__ environment variables:the `PWP__THEME` environment variable to specify the theme and `PWP_PRECOMPILE=true` environment variable to have CSS assets recompiled on container boot.
+
+| Environment Variable | Description | Possible Values |
+| --------- | ------------------ | --- |
+| PWP__THEME | Theme used for the application. |    'cerulean', 'cosmo', 'cyborg', 'darkly', 'flatly', 'journal', 'litera', 'lumen', 'lux', 'materia', 'minty', 'morph', 'pulse', 'quartz', 'sandstone', 'simplex', 'sketchy', 'slate', 'solar', 'spacelab', 'superhero', 'united', 'vapor', 'yeti', 'zephyr' |
+
+---> See the [Themes Gallery](Themes.md) for examples of each.
+
+__Note:__ Since the theme is a boot level selection, the theme can only be selected by setting the `PWP__THEME` environment variable (and not modifying `settings.yml`).
+
+So to set the `quartz` theme for a Docker container:
+
+```bash
+docker run --env PWP__THEME=quartz --env PWP_PRECOMPILE=true -p "5100:5100" pglombardo/pwpush-ephemeral:1.26.10
+```
+
+or alternatively for source code:
+
+```bash
+export PWP__THEME=quartz
+bin/rails asset:precompile # manually recompile assets
+bin/rails server
+```
+
+## How to Precompile CSS Assets
+
+Password Pusher has a pre-compilation step of assets.  This is used to fingerprint assets and pre-process CSS code for better performance.
+
+If using Docker containers, you can simply set the `PWP_PRECOMPILE=true` environment variable.  On container boot, all assets will be precompiled and bundled into `/assets`.
+
+To manually precompile assets run `bin/rails assets:precompile`.
+
+## Adding an entirely new theme from scratch
+
+The `PWP__THEME` environment variable simply causes the application to load a css file from `app/assets/stylesheets/themes/{$PWP__THEME}.css`.  If you were to place a completely custom CSS file into that directory, you could then set the `PWP__THEME` environment variable to the filename that you added.
+
+For example:
+
+Add `app/assets/stylesheets/themes/mynewtheme.css` and set `PWP__THEME=mynewtheme`.
+
+This would cause that CSS file to be loaded and used as the theme for the site.  Please refer to existing themes if you would like to author your theme for Password Pusher.
+
+Remember that after the new theme is configured, assets must be precompiled again.  See the the previous section for instructions
+
+# How to Add Custom CSS
+
+Password Pusher supports adding custom CSS to the application.  The application hosts a `custom.css` file located at `app/assets/stylesheets/custom.css`.  This file is loaded last so it take precedence over all built in themes and styling.
+
+This file can either be modified directly or in the case of Docker containers, a new file mounted over the existing one.
+
+When changing this file inside a Docker container, make sure to set the precompile option `PWP_PRECOMPILE=true`.  This will assure that the custom CSS is incorporated correctly.
+
+An example Docker command to override that file would be:
+
+```
+docker run -e PWP_PRECOMPILE=true --mount type=bind,source=/path/to/my/custom.css,target=/opt/PasswordPusher/app/assets/stylesheets/custom.css -p 5100:5100 pglombardo/pwpush-ephemeral:release
+```
+or the `docker-compose.yml` equivalent:
+
+```
+version: '2.1'
+services:
+
+  pwpush:
+    image: docker.io/pglombardo/pwpush-ephemeral:release
+    ports:
+      - "5100:5100"
+    environment:
+      PWP_PRECOMPILE: 'true'
+    volumes:
+      - type: bind
+        source: /path/to/my/custom.css
+        target: /opt/PasswordPusher/app/assets/stylesheets/custom.css
+```
+
+Remember that when doing this, this new CSS code has to be precompiled.
+
+To do this in Docker containers, simply set the environment variable `PWP_PRECOMPILE=true`.  For source code, run `bin/rails assets:precompile`.  This compilation process will incorporate the custom CSS into the updated site theme. 
 
 # Google Analytics
 

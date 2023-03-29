@@ -26,18 +26,17 @@ class UrlJsonCreationTest < ActionDispatch::IntegrationTest
     assert_equal false, res['expired']
     assert res.key?('deleted')
     assert_equal false, res['deleted']
-    assert res.key?('deletable_by_viewer')
-    assert_equal Settings.deletable_pushes_default, res['deletable_by_viewer']
+    assert !res.key?('deletable_by_viewer')
     assert res.key?('days_remaining')
-    assert_equal Settings.expire_after_days_default, res['days_remaining']
+    assert_equal Settings.url.expire_after_days_default, res['days_remaining']
     assert res.key?('views_remaining')
-    assert_equal Settings.expire_after_views_default, res['views_remaining']
+    assert_equal Settings.url.expire_after_views_default, res['views_remaining']
 
     # These should be default values since we didn't specify them in the params
     assert res.key?('expire_after_days')
-    assert_equal Settings.expire_after_days_default, res['expire_after_days']
+    assert_equal Settings.url.expire_after_days_default, res['expire_after_days']
     assert res.key?('expire_after_views')
-    assert_equal Settings.expire_after_views_default, res['expire_after_views']
+    assert_equal Settings.url.expire_after_views_default, res['expire_after_views']
   end
 
   def test_custom_days_expiration
@@ -68,7 +67,7 @@ class UrlJsonCreationTest < ActionDispatch::IntegrationTest
 
   def test_bad_request
     post urls_path(format: :json), params: {}, headers: { 'X-User-Email': @luca.email, 'X-User-Token': @luca.authentication_token }
-    assert_response :bad_request
+    assert_response :unprocessable_entity
 
     res = JSON.parse(@response.body)
     assert_equal "No URL or note provided.", res["error"]

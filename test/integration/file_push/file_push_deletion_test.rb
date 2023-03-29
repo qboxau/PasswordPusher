@@ -3,7 +3,7 @@ require 'test_helper'
 class PasswordCreationTest < ActionDispatch::IntegrationTest
   def test_password_deletion
     sign_out :user
-    assert Settings.enable_deletable_pushes == true
+    assert Settings.files.enable_deletable_pushes == true
 
     get '/'
     assert_response :success
@@ -15,7 +15,7 @@ class PasswordCreationTest < ActionDispatch::IntegrationTest
     # preview
     follow_redirect!
     assert_response :success
-    assert_select 'h2', 'Your password has been pushed.'
+    assert_select 'h2', 'Your push has been created.'
 
     # view the password
     get request.url.sub('/preview', '')
