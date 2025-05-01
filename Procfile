@@ -1,4 +1,4 @@
-release: bundle exec rails db:migrate
 web: bundle exec puma -C config/puma.rb
-internalweb: bundle exec puma -C config/puma.rb -e private
+worker: bundle exec rake solid_queue:start
+release: bundle exec rails db:migrate
 console: bundle exec rails console

@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded-3 mb-5">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">📊 Dashboard</a>
+    <a class="navbar-brand" href="#">📊 <%= _('Dashboard') %></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -30,7 +30,7 @@
         <% elsif current_controller?('urls') %>
             <%= link_to _('Active'), active_urls_path, class: "btn btn-primary #{ 'active' if current_page?(active_urls_path) }" %>
             <%= link_to _('Expired'), expired_urls_path, class: "btn btn-primary #{ 'active' if current_page?(expired_urls_path) }" %>
-        <% end%>
+        <% end %>
       </div>
       <% if current_controller?('passwords') %>
             <%= link_to _('New'), new_password_path, class: "btn btn-success ms-3" %>
@@ -38,7 +38,7 @@
             <%= link_to _('New'), new_file_push_path, class: "btn btn-success ms-3" %>
       <% elsif current_controller?('urls') %>
             <%= link_to _('New'), new_url_path, class: "btn btn-success ms-3" %>
-      <% end%>
+      <% end %>
     </div>
   </div>
 </nav>

@@ -2,7 +2,7 @@
 #
 # This file uses YAML syntax.  Indentation must be 2 spaces (not tabs).
 #
-# See also https://github.com/pglombardo/PasswordPusher/blob/master/Configuration.md
+# See also https://docs.pwpush.com/docs/config-strategies/
 # for a further explanation of the larger settings available here.
 
 ### Application Defaults
@@ -51,6 +51,26 @@ enable_file_pushes: false
 #
 enable_logins: false
 
+## Login Session Timeout
+#
+# The duration you want to timeout the user session without activity. After this
+# time the user will be asked for credentials again.
+#
+# Default: 2 hours
+#
+# Examples:
+#
+# login_session_timeout: "15 minutes"
+# login_session_timeout: "6 hours"
+# login_session_timeout: "1 day"
+# login_session_timeout: "3 weeks"
+# login_session_timeout: "1 month"
+#
+# Environment variable override:
+# PWP__LOGIN_SESSION_TIMEOUT='2 hours'
+#
+login_session_timeout: "2 hours"
+
 ## Disable Signups
 #
 # Disallow new user accounts to be created in the application.
@@ -62,6 +82,33 @@ enable_logins: false
 # PWP__DISABLE_SIGNUPS='false'
 #
 disable_signups: false
+
+## Limit Signups to Specific Email Domains
+#
+# By default, anyone can sign up for an account.  The following default regular
+# expression just validates if it is a valid email address.
+#
+# signup_email_regexp: '\A[^@\s]+@[^@\s]+\z'
+#
+# If you would like to limit signups to specific email domains, you can extend
+# the regular expression below to include the domains you want to allow.
+#
+# For example, to only allow signups from the domain 'hey.com', you would
+# change the following to:
+#
+#   signup_email_regexp: '\A[^@\s]+@(hey\.com)\z'
+#
+# or for multiple domains:
+#
+#  signup_email_regexp: '\A[^@\s]+@(hey\.com|gmail\.com)\z'
+#
+# Tip: use https://rubular.com to test out your regular expressions. It includes
+# a guide to what each component means in regexp.
+#
+# Environment variable override:
+# PWP__SIGNUP_EMAIL_REGEXP='\A[^@\s]+@[^@\s]+\z'
+#
+signup_email_regexp: '\A[^@\s]+@[^@\s]+\z'
 
 ### Allow Anonymous
 #
@@ -82,6 +129,8 @@ allow_anonymous: true
 # The domain (without protocol) where this instance is hosted
 # Used in generating fully qualified URLs.
 #
+# Make sure to set this for email links to work correctly.
+#
 # Environment variable override:
 # PWP__HOST_DOMAIN='pwpush.com'
 #
@@ -91,6 +140,8 @@ allow_anonymous: true
 #
 # The protocol to reach the domain above
 # Used in generating fully qualified URLs.
+#
+# Make sure to set this for email links to work correctly.
 #
 # Environment variable override:
 # PWP__HOST_PROTOCOL='https'
@@ -110,6 +161,63 @@ host_protocol: 'https'
 # Set this value without a trailing slash ('/').
 #
 # override_base_url: 'https://pwpush.mydomain.com'
+
+### Show version on the footer
+#
+# Enable/disable PasswordPusher version on the footer.
+#
+# Environment variable override:
+# PWP__SHOW_VERSION=true
+#
+# Default: true
+show_version: true
+
+### Show the GDPR cookie consent banner
+#
+# Enable/disable the GDPR cookie consent banner.
+#
+# Environment variable override:
+# PWP__SHOW_GDPR_CONSENT_BANNER=true
+#
+# Default: true
+show_gdpr_consent_banner: true
+
+### Timezone
+#
+# Set the timezone for the application.  A full list of timezone strings
+# can be found here:
+# https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+#
+# Environment variable override:
+# PWP__TIMEZONE='America/New_York'
+#
+# Default: 'America/New_York'
+timezone: 'America/New_York'
+
+### Allowed Hosts
+#
+# This is a list of allowed hosts for the application.  This is used to
+# prevent host header attacks.
+#
+# When set, the application will only respond to requests with a host header
+# that matches one of the values in this list.
+#
+# This feature is generally only used when the application is behind a proxy.
+#
+# It's generally not required to use this unless you are getting the related error
+# in the application.  localhost and the IP that the application is running on
+# are always allowed.
+#
+# Note: If you need more than one value to the environment variable, separate
+# entries by a single space.
+#
+# Environment variable override:
+# PWP__ALLOWED_HOSTS='pwpush.com pwpush.mydomain.com pwpush.myotherdomain'
+#
+# allowed_hosts:
+#   - 'pwpush.com'
+#   - 'pwpush.mydomain.com'
+#   - 'pwpush.myotherdomain.com'
 
 ## Expiration Settings for Password Pushes
 #
@@ -206,7 +314,7 @@ pw:
   # in the future by adding a new checkbox and a `blur_default` setting.
   #
   # Environment variable override:
-  # PWP__PW__BLUR='false'
+  # PWP__PW__ENABLE_BLUR='false'
   #
   enable_blur: true
 
@@ -360,6 +468,17 @@ files:
   #
   enable_blur: true
 
+  # Maximum File Upload Count
+  #
+  # default: 10
+  #
+  # This option controls the maximum number of files that can be uploaded
+  # in a single push.
+  #
+  # Environment variable override:
+  # PWP__FILES__MAX_FILE_UPLOADS=10
+  #
+  max_file_uploads: 10
 
   # File Storage
   #
@@ -374,7 +493,7 @@ files:
   #   * microsoft - use Microsoft Azure Storage (and provide 'as' credentials below)
   #
   # Environment variable override:
-  # PWP__FILES_STORAGE='local'
+  # PWP__FILES__STORAGE='local'
   #
   storage: 'local'
 
@@ -399,6 +518,15 @@ files:
     credentials: ''
     # Environment Variable Override: PWP__FILES__GCS__BUCKET=''
     bucket: ''
+    #
+    # Optionally use IAM instead of the credentials when signing URLs.
+    # This is useful if you are authenticating your GKE applications with Workload Identity,
+    # See here: https://edgeguides.rubyonrails.org/active_storage_overview.html#google-cloud-storage-service
+    #
+    # Environment Variable Override: PWP__FILES__GCS__IAM=true
+    iam: false
+    # Environment Variable Override: PWP__FILES__GCS__GSA_EMAIL='email@domain.com'
+    gsa_email: null
 
   # Microsoft Azure Storage Credentials
   as:
@@ -474,7 +602,7 @@ gen:
   # The exact number of syllables that a generated password will have
   #
   # Environment variable override:
-  # PWP__GEN__SYLLABLE_COUNT=3
+  # PWP__GEN__SYLLABLES_COUNT=3
   #
   syllables_count: 3
 
@@ -483,13 +611,18 @@ brand:
   #
   # Environment variable override: PWP__BRAND__TITLE='Acme Corp.'
   #
-  # title: 'Password Pusher'
+  title: 'Password Pusher'
 
   ### Site Tagline
   #
   # Environment variable override: PWP__BRAND__TAGLINE='Security First'
   #
-  # tagline: 'Go Ahead.  Email Another Password.'
+  tagline: 'Go Ahead.  Email Another Password.'
+
+  ### Site Disclaimer
+  #
+  # Environment variable override: PWP__BRAND__DISCLAIMER='Use at own use risk.'
+  # disclaimer: 'This is a dummy disclaimer and should not be considered legally binding or taken seriously in any way. The content provided here is for entertainment and illustrative purposes only. Any resemblance to actual disclaimers is purely coincidental. We do not endorse or encourage the use of this disclaimer for any real-world applications, and we strongly advise consulting a legal professional for creating legitimate and appropriate disclaimers for your specific needs. By reading this disclaimer, you agree not to hold us responsible for any confusion, amusement, or bewilderment it may cause. This disclaimer has no legal validity, and any attempt to rely on it for legal, financial, or any other serious matters is ill-advised. Please use disclaimers responsibly and in accordance with applicable laws and regulations.'
 
   ### Show Footer Menu Toggle
   #
@@ -511,12 +644,21 @@ brand:
   # light_logo: 'logo-transparent-sm-bare.png'
   # dark_logo: 'logo-transparent-sm-dark-bare.png'
 
-  ### Icon images for mobile.  When people on mobile (phones/tablets), bookmark
+  ### Favicon & icon images for mobile.  When people on mobile (phones/tablets), bookmark
   # the site or it is shown in history, these icons are used.
   #
   # You can also replace these relative paths with fully qualified HTTP links to
   # external resources such as Amazon S3 etc.
   # e.g. PWP__BRAND__ICON_57x57='https://mys3bucket.amazonaws.com/a/some-image.png'
+  #
+  # Although you should set all of the following values, at a bare minimum, make sure
+  # to set at least icon_57x57 and icon_96x96.  Without these two, things are guaranteed
+  # to not work.
+  #
+  # You can use an icon generator such as:
+  # https://www.favicongenerator.com
+  # https://www.favicon-generator.org
+
   #
   # Environment variable override: PWP__BRAND__ICON_57x57='/path/to/image'
   # icon_57x57: 'apple-icon-57x57.png'
@@ -554,40 +696,58 @@ brand:
 # Throttling enforces a minimum time interval
 # between subsequent HTTP requests from a particular client, as
 # well as by defining a maximum number of allowed HTTP requests
-# per a given time period (per second, minute, hourly, or daily).
+# per a given time period (per second or minute)
 #
-# See https://github.com/dryruby/rack-throttle#throttling-strategies
-# for a description of function.
+# See https://github.com/rack/rack-attack
 #
 throttling:
-  # ..maximum number of allowed HTTP requests per day
-  #
-  # Default: 1000
-  #
-  # Environment Variable Override: PWP__THROTTLING__DAILY='1000'
-  daily: 1000
-
-  # ..maximum number of allowed HTTP requests per hour
-  #
-  # Default: 100
-  #
-  # Environment Variable Override: PWP__THROTTLING__HOURLY='100'
-  hourly: 100
-
   # ..maximum number of allowed HTTP requests per minute
   #
-  # Default: 30
+  # Default: 120
   #
-  # Environment Variable Override: PWP__THROTTLING__MINUTE='30'
-  minute: 30
+  # Environment Variable Override: PWP__THROTTLING__MINUTE='60'
+  minute: 120
 
   # ..maximum number of allowed HTTP requests per second
   #
-  # Default: 2
+  # Default: 60
   #
-  # Environment Variable Override: PWP__THROTTLING__SECOND='2'
-  second: 2
+  # Environment Variable Override: PWP__THROTTLING__SECOND='20'
+  second: 60
 
+### Trusted Proxies
+#
+# By default, Password Pusher will only proxy related headers from proxies on
+# the local network.  If you are using a proxy that is not on the local network,
+# you will need to add the IP address of the proxy to the list below.
+#
+# This is useful if you are using a remote reverse proxy such as Cloudflare to
+# serve the application.  If local, you can leave this setting as is.
+# 
+# Multiple IP addresses can be added by separating them with a comma.
+#
+# Environment Variable Override:
+# PWP__TRUSTED_PROXIES='<ipaddress>'
+# PWP__TRUSTED_PROXIES='<ipaddress1>,<ipaddress2>'
+#
+# trusted_proxies:
+#   - '1.2.3.4'
+#   - '2.3.4.5'
+
+## Cloudflare Proxy
+#
+# If you are using Cloudflare as a proxy, you will need to set the following
+# value to true.  This will cause the application to fetch the list of Cloudflare
+# proxy IP addresses and add them to the list of trusted proxies.
+#
+# Note that on application boot, this will trigger two HTTPs requests to fetch
+# the list of Cloudflare IP addresses.  The requests each have a timeout of 15 seconds
+# and may delay on container boot.
+#
+# Environment Variable Override:
+# PWP__CLOUDFLARE_PROXY='false'
+#
+cloudflare_proxy: false
 
 ### Mail Server Configuration
 #
@@ -600,6 +760,8 @@ throttling:
 # for ActionMailer is at:
 # https://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration
 #
+# IMPORTANT: Also set host_domain and host_protocol above for email links to work correctly!
+#
 mail:
   # Email delivery errors will be shown in the application
   # Environment Variable Override: PWP__MAIL__RAISE_DELIVERY_ERRORS='false'
@@ -608,14 +770,6 @@ mail:
   # Allows you to use a remote mail server. Just change it from its default "localhost" setting.
   # Environment Variable Override: PWP__MAIL__SMTP_ADDRESS='smtp.example.com'
   # smtp_address: smtp.example.com
-
-  # If your mail server requires authentication, set the username in this setting.
-  # Environment Variable Override: PWP__MAIL__SMTP_USER_NAME='apikey'
-  # smtp_user_name: 'apikey'
-
-  # If your mail server requires authentication, set the password in this setting.
-  # Environment Variable Override: PWP__MAIL__SMTP_PASSWORD='something@&#$'
-  # smtp_password: ''
 
   # If you need to specify a HELO domain, you can do it here.
   # Environment Variable Override: PWP__MAIL__SMTP_DOMAIN='xyz.dev'
@@ -631,8 +785,19 @@ mail:
   # or :cram_md5 (combines a Challenge/Response mechanism to exchange
   # information and a cryptographic Message Digest 5 algorithm to hash
   # important information)
+  #
+  # Important: Comment this out if your server doesn't require authentication.
+  #
   # Environment Variable Override: PWP__MAIL__SMTP_AUTHENTICATION='plain'
-  smtp_authentication: 'plain'
+  # smtp_authentication: 'plain'
+
+  # If your mail server requires authentication, set the username in this setting.
+  # Environment Variable Override: PWP__MAIL__SMTP_USER_NAME='apikey'
+  # smtp_user_name: 'apikey'
+
+  # If your mail server requires authentication, set the password in this setting.
+  # Environment Variable Override: PWP__MAIL__SMTP_PASSWORD='something@&#$'
+  # smtp_password: ''
 
   # Use STARTTLS when connecting to your SMTP server and fail if unsupported.
   # Environment Variable Override: PWP__MAIL__SMTP_STARTTLS='true'
@@ -659,26 +824,19 @@ mail:
   # Configure the e-mail address which will be shown as 'From' in emails
   # See config/initializers/devise.rb where this is used
   # Environment Variable Override: PWP__MAIL__MAILER_SENDER='"Password Pusher" <pglombardo@pwpush.com>'
-  # mailer_sender: '"Password Pusher" <pglombardo@pwpush.com>'
+  # mailer_sender: '"Password Pusher" <oss@pwpush.com>'
 
-### Feedback Form
-feedback:
-  # The email that will receive the information filled out by users in the
-  # Feedback form.
-  #
-  # Environment Variable Override: PWP__FEEDBACK__EMAIL='my@email.com'
-  email: 'feedback@pwpush.com'
-
-### Docker Precompilation
-#
-# If set to true, the Docker image will precompile assets on container boot.
+### Docker Pre-compilation
 #
 # This is useful if you modified the assets (e.g. CSS, JS, images) to customize
 # the theme etc...  Assets are precompiled before serving.
 #
-# Environment Variable Override: PWP_PRECOMPILE='false'
+# If you set a custom theme, you will need to precompile the assets on container boot.
 #
-# precompile: false
+# Pre-compilation isn't supported in this yaml file.  It is only supported
+# through the environment variable PWP_PRECOMPILE='true'.
+#
+# Environment Variable: PWP_PRECOMPILE='false'
 
 ### Themes
 #
@@ -699,10 +857,64 @@ feedback:
 #                 It cannot be set in this config file.
 theme: 'default'
 
+### Site Default Locale
+#
+# The default language for the application.  This must be one of the
+# valid/supported language codes from the list above.
+#
+# Note: This locale _must_ be in the list of enabled_language_codes.
+#
+# Example: default_locale: :es
+#
+# Environment Variable Override: PWP__DEFAULT_LOCALE='es'
+default_locale: :en
+
 ### Language & Internationalization
 #
-# List of supported languages indexed by language code.  This is used
-# to build the in application language menu.
+# List of enabled languages for the application.
+#
+# To remove the availability of languages from the application entirely,
+# comment out (or remove) the language code(s) from the `enabled_language_codes`
+# list below.
+#
+enabled_language_codes:
+  - ca    # 'Català'
+  - cs    # 'Čeština'
+  - da    # 'Dansk'
+  - de    # 'Deutsch'
+  - en    # 'English'
+  - en-GB # 'English (UK)'
+  - es    # 'Español'
+  - eu    # 'Euskara'
+  - fi    # 'Suomi'
+  - fr    # 'Français'
+  - hi    # 'हिन्दी'
+  - hu    # 'Magyar'
+  - id    # 'Indonesian'
+  - is    # 'Íslenska'
+  - it    # 'Italiano'
+  - ja    # '日本語'
+  - ko    # '한국어'
+  - lv    # 'Latviski'
+  - nl    # 'Nederlands'
+  - 'no'  # 'Norsk' # _no_ keyword in Ruby evaluates to false  #-(
+  - pl    # 'Polski'
+  - pt-BR # 'Português'
+  - pt-PT # 'Português'
+  - ro    # 'Română'
+  - ru    # 'Русский'
+  - sr    # 'Српски'
+  - sk    # 'Slovenský'
+  - sv    # 'Svenska'
+  - th    # 'ไทย'
+  - uk    # 'Українська'
+  - ur    # 'اردو'
+  - zh-CN # '中文'
+
+### Language & Internationalization
+#
+# Map of language codes to language name.
+# Used internally for the language selector model.
 #
 # <language code>: '<language name>'
 language_codes:
@@ -712,19 +924,32 @@ language_codes:
   de: 'Deutsch'
   en: 'English'
   es: 'Español'
+  eu: 'Euskara'
+  en-GB: 'English (UK)'
   fi: 'Suomi'
   fr: 'Français'
+  hi: 'हिन्दी'
   hu: 'Magyar'
+  id: 'Indonesian'
+  is: 'Íslenska'
   it: 'Italiano'
+  ja: '日本語'
+  ko: '한국어'
   lv: 'Latviski'
   nl: 'Nederlands'
   'no': 'Norsk' # _no_ keyword in Ruby evaluates to false :-(
   pl: 'Polski'
-  'pt-BR': 'Português'
-  'pt-PT': 'Português'
+  pt-BR: 'Português'
+  pt-PT: 'Português'
+  ro: 'Română'
+  ru: 'Русский'
+  sk: 'Slovenský'
   sr: 'Српски'
   sv: 'Svenska'
-  zh-CN: '中国人'
+  th: 'ไทย'
+  uk: 'Українська'
+  ur: 'اردو'
+  zh-CN: '中文'
 
 # Used internally for the language selector model.
 # This provides a conversion of language codes to
@@ -738,47 +963,40 @@ country_codes:
   da: :dk
   de: :de
   en: :us
+  en-GB: :gb
   es: :es
+  eu: :es-pv
   fi: :fi
   fr: :fr
+  hi: :in
   hu: :hu
+  id: :id
+  is: :is
   it: :it
+  ja: :jp
+  ko: :kr
   lv: :lv
   nl: :nl
-  'no': 'no' # _no_ keyword in Ruby evaluates to false :-(
+  'no': :no # _no_ keyword in Ruby evaluates to false :-(
   pl: :pl
-  'pt-BR': 'br'
-  'pt-PT': 'pt'
-  sr: 'rs'
-  sv: 'se'
-  zh-CN: 'cn'
-
-
-### Site Default Locale
-#
-# The default language for the application.  This must be one of the
-# valid/supported language codes from the list above.
-#
-# Example: default_locale: :es
-#
-# Environment Variable Override: PWP__DEFAULT_LOCALE='es'
-default_locale: :en
+  pt-BR: :br
+  pt-PT: :pt
+  ro: :ro
+  ru: :ru
+  sk: :sk
+  sr: :rs
+  sv: :se
+  th: :th
+  uk: :ua
+  ur: :pk
+  zh-CN: :cn
 
 # Configure the logging verbosity of the application.
 #
-# Valid values are: debug, info, warn, error, fatal
-log_level: 'warn'
+# Valid values are: :debug, :info, :warn, :error, :fatal
+log_level: :warn
 
 # In containers, it is usually desired to log to stdout
 # instead of using log files (e.g. log/production.log).
 #
 log_to_stdout: false
-
-### Run in Subfolder
-#
-# To run in a subfolder, specify the path to use.  For example, if `relative_root`
-# is set too 'pwpush_root', then the application is hosted at https://<host>/pwpush_root/
-# (and this is where you will find the front page of the application).
-#
-# Environment variable override: PWP__RELATIVE_ROOT='pwpush'
-# relative_root: 'pwpush'

@@ -36,7 +36,7 @@
               </div>
             <% end %>
           </td>
-          <td><%= I18n.l push.expired_on, format: :long %></td>
+          <td><%= I18n.l push.expired_on.in_time_zone(Settings.timezone), format: :long %></td>
           <td class="text-center">
               <%= link_to audit_password_path(push), class: 'btn btn-info btn-sm w-100', rel: 'nofollow' do %>
                 <%= _('Audit Log') %>
@@ -47,6 +47,6 @@
       <% end %>
       </tbody>
     </table>
-    <%= will_paginate @pushes, renderer: WillPaginate::ActionView::BootstrapLinkRenderer, list_classes: %w(pagination justify-content-center) %>
+    <%= paginate @pushes %>
   <% end %>
 </main>

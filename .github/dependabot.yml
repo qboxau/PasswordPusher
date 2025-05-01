@@ -13,6 +13,13 @@ updates:
     commit-message:
       prefix: ":arrow_up:"
     open-pull-requests-limit: 50
+    ignore:
+      - dependency-name: "rack-throttle"
+        versions: [">=0.7.1"]
+      # FIXME: Bootstrap Bug
+      # https://github.com/pglombardo/PasswordPusher/issues/1377
+      - dependency-name: "bootstrap"
+        versions: [">5.2.3"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -25,27 +32,7 @@ updates:
     open-pull-requests-limit: 50
 
   - package-ecosystem: "docker"
-    directory: "/containers/docker/pwpush-ephemeral"
-    schedule:
-      interval: "weekly"
-    allow:
-      - dependency-type: "all"
-    commit-message:
-      prefix: ":arrow_up:"
-    open-pull-requests-limit: 50
-
-  - package-ecosystem: "docker"
-    directory: "/containers/docker/pwpush-mysql"
-    schedule:
-      interval: "weekly"
-    allow:
-      - dependency-type: "all"
-    commit-message:
-      prefix: ":arrow_up:"
-    open-pull-requests-limit: 50
-  
-  - package-ecosystem: "docker"
-    directory: "/containers/docker/pwpush-postgres"
+    directory: "/containers/docker"
     schedule:
       interval: "weekly"
     allow:

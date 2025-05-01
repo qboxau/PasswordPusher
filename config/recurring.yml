@@ -1,0 +1,42 @@
+# production:
+#   periodic_cleanup:
+#     class: CleanSoftDeletedRecordsJob
+#     queue: background
+#     args: [ 1000, { batch_size: 500 } ]
+#     schedule: every hour
+#   periodic_command:
+#     command: "SoftDeletedRecord.due.delete_all"
+#     priority: 2
+#     schedule: at 5am every day
+
+production:
+  expire_pushes:
+    class: ExpirePushesJob
+    queue: recurring
+    schedule: every 2 hours
+
+  cleanup_pushes:
+    class: CleanUpPushesJob
+    queue: recurring
+    schedule: every day at 5am
+
+  purge_unattached_blobs:
+    class: PurgeUnattachedBlobsJob
+    queue: recurring
+    schedule: every 3 days
+
+development:
+  expire_pushes:
+    class: ExpirePushesJob
+    queue: recurring
+    schedule: every 4 hours
+
+  cleanup_pushes:
+    class: CleanUpPushesJob
+    queue: recurring
+    schedule: every 7 hours
+
+  purge_unattached_blobs:
+    class: PurgeUnattachedBlobsJob
+    queue: recurring
+    schedule: every 3 days
