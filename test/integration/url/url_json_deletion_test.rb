@@ -2,16 +2,19 @@
 
 require "test_helper"
 
-class UrlJsonCreationTest < ActionDispatch::IntegrationTest
+class UrlJsonDeletionTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   setup do
-    Settings.enable_logins = true
     Settings.enable_url_pushes = true
     Rails.application.reload_routes!
 
     @luca = users(:luca)
-    @luca.confirm
+  end
+
+  teardown do
+    Settings.reload!
+    Rails.application.reload_routes!
   end
 
   def test_deletion
@@ -26,7 +29,8 @@ class UrlJsonCreationTest < ActionDispatch::IntegrationTest
     assert_equal false, res["expired"]
     assert res.key?("deleted")
     assert_equal false, res["deleted"]
-    assert_not res.key?("deletable_by_viewer")
+    assert res.key?("deletable_by_viewer")
+    assert_nil res["deletable_by_viewer"]
     assert res.key?("days_remaining")
     assert_equal Settings.url.expire_after_days_default, res["days_remaining"]
     assert res.key?("views_remaining")
@@ -42,9 +46,24 @@ class UrlJsonCreationTest < ActionDispatch::IntegrationTest
     assert res.key?("url_token")
     assert res.key?("expired")
     assert_equal true, res["expired"]
+    assert res.key?("expired_on")
+    assert_not_nil res["expired_on"]
     assert res.key?("deleted")
     assert_equal true, res["deleted"]
-    assert_not res.key?("deletable_by_viewer")
+    assert res.key?("deletable_by_viewer")
+    assert_nil res["deletable_by_viewer"]
+
+    assert_equal res.keys.sort, ["created_at", "days_remaining", "deletable_by_viewer", "deleted", "expire_after_days", "expire_after_views", "expired", "expired_on", "html_url", "json_url", "passphrase", "retrieval_step", "updated_at", "url_token", "views_remaining"].sort
+    assert_equal res.except("url_token", "created_at", "updated_at", "expired_on", "html_url", "json_url"), {"expire_after_views" => 5,
+      "expired" => true,
+      "retrieval_step" => true,
+      "passphrase" => nil,
+      "expire_after_days" => 7,
+      "days_remaining" => 7,
+      "views_remaining" => 5,
+      "deleted" => true,
+      "deletable_by_viewer" => nil}
+
     assert res.key?("days_remaining")
     assert_equal Settings.url.expire_after_days_default, res["days_remaining"]
     assert res.key?("views_remaining")
@@ -62,7 +81,8 @@ class UrlJsonCreationTest < ActionDispatch::IntegrationTest
     assert_equal true, res["expired"]
     assert res.key?("deleted")
     assert_equal true, res["deleted"]
-    assert_not res.key?("deletable_by_viewer")
+    assert res.key?("deletable_by_viewer")
+    assert_nil res["deletable_by_viewer"]
     assert res.key?("days_remaining")
     assert_equal Settings.url.expire_after_days_default, res["days_remaining"]
     assert res.key?("views_remaining")

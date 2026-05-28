@@ -9,19 +9,24 @@ Rails.application.routes.draw do
     root to: proc { |env| [404, {"Content-Type" => "text/html"}, ["<h1>Not Found</h1>"]] }
   else
     draw :admin
+    draw :madmin
     draw :users
     draw :pushes
     draw :pwp_api
 
     apipie
+    get "/help/api", to: "pages#api", as: :help_api
 
     get "/pages/*id" => "pages#show", :as => :page, :format => false
 
+    mount Mailbin::Engine => :mailbin if Rails.env.development?
+
+    draw :redirects
     draw :legacy_devise
     draw :legacy_pages
     draw :legacy_pushes
 
-    root to: "passwords#new"
+    root to: "pushes#new"
   end
 
   # Health check endpoint that returns a simple 200 OK response

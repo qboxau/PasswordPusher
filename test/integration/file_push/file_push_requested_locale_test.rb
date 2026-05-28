@@ -2,28 +2,28 @@
 
 require "test_helper"
 
-class FilePushReqLocaleTest < ActionDispatch::IntegrationTest
+class FilePushRequestedLocaleTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   setup do
-    Settings.enable_logins = true
     Settings.enable_file_pushes = true
     Rails.application.reload_routes!
     @luca = users(:luca)
-    @luca.confirm
     sign_in @luca
   end
 
   teardown do
-    sign_out :user
+    Settings.reload!
+    Rails.application.reload_routes!
   end
 
   def test_requested_locale
-    get new_file_push_path
+    get new_push_path(tab: "files")
     assert_response :success
 
-    post file_pushes_path, params: {
-      file_push: {
+    post pushes_path, params: {
+      push: {
+        kind: "file",
         payload: "Message",
         passphrase: "asdf",
         retrieval_step: true,
@@ -37,7 +37,7 @@ class FilePushReqLocaleTest < ActionDispatch::IntegrationTest
     # Preview page
     follow_redirect!
     assert_response :success
-    assert_select "h2", "Your push has been created."
+    assert_select "h2", "Push Created"
 
     # Retrieve the push with a locale
     push_with_locale = request.url.sub("/preview", "") + "/r?locale=es"
@@ -74,11 +74,12 @@ class FilePushReqLocaleTest < ActionDispatch::IntegrationTest
   end
 
   def test_requested_locale_without_passphrase
-    get new_file_push_path
+    get new_push_path(tab: "files")
     assert_response :success
 
-    post file_pushes_path, params: {
-      file_push: {
+    post pushes_path, params: {
+      push: {
+        kind: "file",
         payload: "Message",
         retrieval_step: true,
         files: [
@@ -91,7 +92,7 @@ class FilePushReqLocaleTest < ActionDispatch::IntegrationTest
     # Preview page
     follow_redirect!
     assert_response :success
-    assert_select "h2", "Your push has been created."
+    assert_select "h2", "Push Created"
 
     # Retrieve the push with a locale
     push_with_locale = request.url.sub("/preview", "") + "/r?locale=es"

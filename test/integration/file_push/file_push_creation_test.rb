@@ -6,25 +6,24 @@ class FilePushCreationTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   setup do
-    Settings.enable_logins = true
     Settings.enable_file_pushes = true
     Rails.application.reload_routes!
     @luca = users(:luca)
-    @luca.confirm
     sign_in @luca
   end
 
   teardown do
-    sign_out :user
+    Settings.reload!
+    Rails.application.reload_routes!
   end
 
   def test_textarea_has_safeties
-    get new_file_push_path
+    get new_push_path(tab: "files")
     assert_response :success
     assert response.body.include?("You can upload up to")
 
     # Validate some elements
-    text_area = css_select "textarea#file_push_payload.form-control"
+    text_area = css_select "textarea#push_payload.form-control"
 
     assert text_area.attribute("spellcheck")
     assert text_area.attribute("spellcheck").value == "false"
@@ -32,18 +31,19 @@ class FilePushCreationTest < ActionDispatch::IntegrationTest
     assert text_area.attribute("autocomplete")
     assert text_area.attribute("autocomplete").value == "off"
 
-    file_input = css_select "input#file_push_files.form-control"
+    file_input = css_select "input#push_files.form-control"
 
     assert file_input.attribute("required")
     assert file_input.attribute("required").value == "required"
   end
 
   def test_file_push_creation
-    get new_file_push_path
+    get new_push_path(tab: "files")
     assert_response :success
 
-    post file_pushes_path, params: {
-      file_push: {
+    post pushes_path, params: {
+      push: {
+        kind: "file",
         payload: "Message",
         files: [
           fixture_file_upload("monkey.png", "image/jpeg")
@@ -55,7 +55,7 @@ class FilePushCreationTest < ActionDispatch::IntegrationTest
     # Preview page
     follow_redirect!
     assert_response :success
-    assert_select "h2", "Your push has been created."
+    assert_select "h2", "Push Created"
 
     # File Push page
     get request.url.sub("/preview", "")
@@ -75,12 +75,12 @@ class FilePushCreationTest < ActionDispatch::IntegrationTest
   end
 
   def test_file_push_creation_with_limits
-    @old_max_files_uploads = Settings.files.max_file_uploads
     Settings.files.max_file_uploads = 1
 
     # Upload 1 file
-    post file_pushes_path, params: {
-      file_push: {
+    post pushes_path, params: {
+      push: {
+        kind: "file",
         payload: "Message",
         files: [
           fixture_file_upload("monkey.png", "image/jpeg")
@@ -90,11 +90,12 @@ class FilePushCreationTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     follow_redirect!
     assert_response :success
-    assert_select "h2", "Your push has been created."
+    assert_select "h2", "Push Created"
 
     # Upload 2 files should fail
-    post file_pushes_path, params: {
-      file_push: {
+    post pushes_path, params: {
+      push: {
+        kind: "file",
         payload: "Message",
         files: [
           fixture_file_upload("monkey.png", "image/jpeg"),
@@ -102,16 +103,16 @@ class FilePushCreationTest < ActionDispatch::IntegrationTest
         ]
       }
     }
-    assert_response :unprocessable_entity
-    Settings.files.max_file_uploads = @old_max_files_uploads
+    assert_response :unprocessable_content
   end
 
   def test_ascii_8bit_message_creation
-    get new_file_push_path
+    get new_push_path(tab: "files")
     assert_response :success
 
-    post file_pushes_path, params: {
-      file_push: {
+    post pushes_path, params: {
+      push: {
+        kind: "file",
         payload: "æ ¼ ö ç ý",
         files: [
           fixture_file_upload("monkey.png", "image/jpeg")
@@ -123,7 +124,7 @@ class FilePushCreationTest < ActionDispatch::IntegrationTest
     # Preview page
     follow_redirect!
     assert_response :success
-    assert_select "h2", "Your push has been created."
+    assert_select "h2", "Push Created"
 
     # File Push page
     get request.url.sub("/preview", "")
@@ -147,13 +148,13 @@ class FilePushCreationTest < ActionDispatch::IntegrationTest
   end
 
   def test_deletable_by_viewer_enabled_or_not
-    get new_file_push_path
+    get new_push_path(tab: "files")
     assert_response :success
 
     # DELETABLE_PASSWORDS_ENABLED enables or disables the ability for users
     # to delete file_pushes when viewing
 
-    deletable_checkbox = css_select "#file_push_deletable_by_viewer"
+    deletable_checkbox = css_select "#push_deletable_by_viewer"
     assert(deletable_checkbox)
 
     found = Settings.files.enable_deletable_pushes
@@ -163,11 +164,11 @@ class FilePushCreationTest < ActionDispatch::IntegrationTest
     assert found
 
     # Assert default value on form: DELETABLE_PASSWORDS_DEFAULT
-    deletable_checkbox = css_select "input#file_push_deletable_by_viewer"
+    deletable_checkbox = css_select "input#push_deletable_by_viewer"
     assert(deletable_checkbox.length == 1)
 
     # DELETABLE_PASSWORDS_DEFAULT determines initial check state
-    if Settings.files.deletable_pushes_default == true
+    if Settings.files.deletable_pushes_default
       assert(deletable_checkbox.first.attributes["checked"].value == "checked")
     else
       assert(deletable_checkbox.first.attributes["checked"].nil?)
@@ -175,11 +176,12 @@ class FilePushCreationTest < ActionDispatch::IntegrationTest
   end
 
   def test_deletable_by_viewer_honored_when_true
-    get new_file_push_path
+    get new_push_path(tab: "files")
     assert_response :success
 
-    post file_pushes_path, params: {
-      file_push: {
+    post pushes_path, params: {
+      push: {
+        kind: "file",
         payload: "æ ¼ ö ç ý",
         deletable_by_viewer: true,
         files: [
@@ -202,11 +204,12 @@ class FilePushCreationTest < ActionDispatch::IntegrationTest
   end
 
   def test_deletable_by_viewer_falls_back_to_default
-    get new_file_push_path
+    get new_push_path(tab: "files")
     assert_response :success
 
-    post file_pushes_path, params: {
-      file_push: {
+    post pushes_path, params: {
+      push: {
+        kind: "file",
         payload: "æ ¼ ö ç ý",
         files: [
           fixture_file_upload("monkey.png", "image/jpeg")

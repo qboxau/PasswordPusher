@@ -2,18 +2,22 @@
 
 require "test_helper"
 
-class PasswordCreationTest < ActionDispatch::IntegrationTest
+class FilePushNotfoundTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   setup do
-    Settings.enable_logins = true
     Settings.enable_file_pushes = true
+    Rails.application.reload_routes!
+  end
+
+  teardown do
+    Settings.reload!
     Rails.application.reload_routes!
   end
 
   def test_password_not_found
     # Non existant push should return the expired page
-    get file_push_path("doesnotexist")
+    get push_path("doesnotexist")
     assert_response :success
 
     # Validate the expiration page
@@ -23,7 +27,7 @@ class PasswordCreationTest < ActionDispatch::IntegrationTest
 
   def test_password_preliminary_not_found
     # Non existant push should return the expired page
-    get preliminary_file_push_path("doesnotexist")
+    get preliminary_push_path("doesnotexist")
     assert_response :success
 
     # Validate the expiration page

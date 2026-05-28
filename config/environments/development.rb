@@ -38,46 +38,9 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = Settings.files.storage
 
-  if Settings.mail
-    config.action_mailer.perform_caching = false
-
-    config.action_mailer.raise_delivery_errors = Settings.mail.raise_delivery_errors
-
-    config.action_mailer.default_url_options = {host: "127.0.0.1:5100", protocol: "https"}
-
-    config.action_mailer.smtp_settings = {
-      address: Settings.mail.smtp_address,
-      port: Settings.mail.smtp_port
-    }
-
-    config.action_mailer.smtp_settings[:domain] = Settings.mail.smtp_domain if Settings.mail.smtp_domain
-    config.action_mailer.smtp_settings[:open_timeout] = Settings.mail.smtp_open_timeout if Settings.mail.smtp_open_timeout
-    config.action_mailer.smtp_settings[:read_timeout] = Settings.mail.smtp_read_timeout if Settings.mail.smtp_read_timeout
-
-    if !Settings.mail.smtp_authentication.nil?
-      config.action_mailer.smtp_settings[:authentication] = Settings.mail.smtp_authentication
-    end
-
-    if !Settings.mail.smtp_user_name.nil?
-      config.action_mailer.smtp_settings[:user_name] = Settings.mail.smtp_user_name
-    end
-
-    if !Settings.mail.smtp_password.nil?
-      config.action_mailer.smtp_settings[:password] = Settings.mail.smtp_password
-    end
-
-    if !Settings.mail.smtp_openssl_verify_mode.nil?
-      config.action_mailer.smtp_settings[:openssl_verify_mode] = Settings.mail.smtp_openssl_verify_mode.to_sym
-    end
-
-    if !Settings.mail.smtp_enable_starttls_auto.nil?
-      config.action_mailer.smtp_settings[:enable_starttls_auto] = Settings.mail.smtp_enable_starttls_auto
-    end
-
-    if !Settings.mail.smtp_enable_starttls.nil?
-      config.action_mailer.smtp_settings[:enable_starttls] = Settings.mail.smtp_enable_starttls
-    end
-  end
+  config.action_mailer.delivery_method = :mailbin
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.default_url_options = {host: "127.0.0.1:5100"}
 
   config.logger = Logger.new($stdout) if Settings.log_to_stdout
   config.log_level = :debug
@@ -106,6 +69,13 @@ Rails.application.configure do
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 
+  # Propshaft uses Propshaft::Resolver::Static when public/assets/.manifest.json exists
+  # (for example after running assets:precompile locally). That manifest only lists
+  # precompiled app assets, so dev-only gems that ship CSS (e.g. mailbin) are missing
+  # and stylesheet_link_tag raises MissingAssetError. Point at a path that does not
+  # exist so the dynamic resolver serves engine assets in development.
+  config.assets.manifest_path = Rails.root.join("tmp/.propshaft-development-manifest-placeholder")
+
   # Raises error for missing translations.
   config.i18n.raise_on_missing_translations = true
 
@@ -118,12 +88,19 @@ Rails.application.configure do
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = true
 
+  config.hosts << "lvh.me"
+  config.hosts << "oss.localhost"
+
   # The list of trusted proxies from which we will accept proxy related headers.
+  # Covers common private / non-routable IPv4 ranges (RFC 1918, loopback, link-local, RFC 6598).
   config.action_dispatch.trusted_proxies = [
-    "127.0.0.1",         # Localhost
-    /^::1$/,             # IPv6 localhost
-    /192\.168\.\d{1,3}\.\d{1,3}/, # Local network
-    /10\.\d{1,3}\.\d{1,3}\.\d{1,3}/ # Private networks
+    /^::1$/, # IPv6 localhost
+    /127\.\d{1,3}\.\d{1,3}\.\d{1,3}/, # IPv4 loopback (127.0.0.0/8)
+    /10\.\d{1,3}\.\d{1,3}\.\d{1,3}/, # RFC 1918: 10.0.0.0/8
+    /172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}/, # RFC 1918: 172.16.0.0/12 (e.g. Docker bridge)
+    /192\.168\.\d{1,3}\.\d{1,3}/, # RFC 1918: 192.168.0.0/16
+    /169\.254\.\d{1,3}\.\d{1,3}/, # IPv4 link-local (169.254.0.0/16)
+    /100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\.\d{1,3}\.\d{1,3}/ # RFC 6598: 100.64.0.0/10
   ]
 
   if Settings.trusted_proxies.present?

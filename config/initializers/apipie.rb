@@ -4,17 +4,21 @@ Apipie.configure do |config|
   config.app_name = "Password Pusher"
   config.copyright = "&copy; 2011-Present Peter Giacomo Lombardo"
   config.api_base_url = ""
-  config.api_base_url["1.4"] = ""
+  config.api_base_url["1.5"] = ""
   config.doc_base_url = "/api"
   config.api_controllers_matcher = Rails.root.join("app/controllers/**/*.rb").to_s
   config.validate = false
-  config.default_version = "1.4"
+  config.default_version = "1.5"
   config.app_info = <<-APPINFO
-    The Password Pusher JSON API.
+    The Password Pusher JSON API v1.5.
 
     This API allows for both anonymous and authenticated access.
 
     For more information including language-specific examples to copy, see: https://docs.pwpush.com/docs/json-api/
+
+    == API v1 Deprecation Notice
+
+    API v1 is deprecated, will no longer receive updates, and remains available for legacy integrations. Please use API v2 instead: {API v2 documentation}[/help/api].
 
     == Authentication
 

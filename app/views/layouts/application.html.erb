@@ -16,16 +16,18 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag if defined?(csp_meta_tag) %>
 
-  <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
-  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   <%= tag.meta name: 'turbo-drive-enabled', content: ENV.key?('TURBO_DRIVE_ENABLED') ? ENV['TURBO_DRIVE_ENABLED'].to_s.downcase : true %>
+
+  <%= stylesheet_link_tag PasswordPusher::Theme.stylesheet_logical_name, "data-turbo-track": "reload" %>
+  <%= custom_css_style_tag %>
+  <%= javascript_importmap_tags %>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
 
 <%= render partial: 'shared/header' %>
 
-<div class="container">
+<div class="container mb-4">
   <%= render partial: 'shared/alerts' %>
   <%= yield %>
 </div>

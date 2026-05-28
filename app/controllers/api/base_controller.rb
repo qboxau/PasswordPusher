@@ -11,27 +11,37 @@ class Api::BaseController < ApplicationController
     if (user = user_from_token)
       sign_in user, store: false
 
-    elsif params["controller"] == "api/v1/version"
-      # Version endpoint is public
+    elsif %w[api/v1/version api/v2/version].include?(params["controller"])
+      # Version endpoints are public
       nil
 
     elsif request.headers.key?("Authorization") || request.headers.key?("X-User-Token")
       # The user is trying to authenticate with a bad token
       head :unauthorized
 
-    elsif params["controller"] == "api/v1/passwords"
+    elsif !Settings.allow_anonymous
+      # When anonymous access is disabled, API endpoints require authentication.
+      head :unauthorized
+
+    elsif params["controller"] == "api/v2/pushes"
+      if %w[audit active expired].include?(params["action"])
+        # These v2 endpoints require a valid token
+        head :unauthorized
+      end
+
+    elsif request.path.start_with?("/p")
       if %w[audit active expired].include?(params["action"])
         # These paths require a valid token
         head :unauthorized
       end
 
-    elsif params["controller"] == "api/v1/file_pushes"
+    elsif request.path.start_with?("/f")
       if %w[create audit active expired].include?(params["action"])
         # These paths require a valid token
         head :unauthorized
       end
 
-    elsif params["controller"] == "api/v1/urls"
+    elsif request.path.start_with?("/r")
       if %w[create audit active expired].include?(params["action"])
         # These paths require a valid token
         head :unauthorized
@@ -55,6 +65,12 @@ class Api::BaseController < ApplicationController
     api_token = token_from_header
     return nil if api_token.blank?
 
-    User.find_by(authentication_token: token_from_header)
+    User.find_by(authentication_token: api_token)
+  end
+
+  rescue_from ActionController::ParameterMissing do |exception|
+    respond_to do |format|
+      format.json { render json: {error: exception.message}, status: :bad_request }
+    end
   end
 end
